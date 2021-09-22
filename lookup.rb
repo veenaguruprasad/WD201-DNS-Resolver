@@ -21,29 +21,29 @@ dns_raw = File.readlines("zone")
 
 # FILL YOUR CODE HERE
 
-def parse_dns(dns_raw)
-  dns_matrix = Array.new
-  for this_line in dns_raw do
-    this_line = this_line.strip()
-    unless this_line[0] == '#' or this_line.empty?
-        dns_matrix.push(this_line.split(', '))
+def parse_dns(raw)
+  array = Array.new
+  raw.
+    map {|line| line.strip}.
+    reject {|line| line.empty? || line[0] == '#'}.
+    map {|line| line.split(", ") }.
+    each_with_object({}) do |record, records|
+      records[record[1]] = {type: record[0], target: record[2]}
     end
-  end
-  return dns_matrix
 end
 
-def resolve(dns_records, lookup, dom)
-  for entry in dns_records do
-    if entry[1] == dom
-      lookup.push(entry[2])
-      if entry[0] == 'A'
-        return lookup
-      else
-        return resolve(dns_records, lookup, entry[2])
-      end
+def resolve(dns_records, lookup_chain, domain)
+    record = dns_records[domain]
+    if (!record)
+      lookup_chain = ["Error: Record not found for #{domain}"]
+    elsif record[:type] == "CNAME"
+      lookup_chain.push(record[:target])
+      resolve(dns_records, lookup_chain, record[:target])
+    elsif record[:type] == "A"
+      lookup_chain.push(record[:target])
+    else
+      lookup_chain = ["Invalid record type for #{domain}"]
     end
-  end
-  return ["Nothing was found!"]
 end
 
 
