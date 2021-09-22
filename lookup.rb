@@ -22,7 +22,6 @@ dns_raw = File.readlines("zone")
 # FILL YOUR CODE HERE
 
 def parse_dns(raw)
-  array = Array.new
   raw.
     map {|line| line.strip}.
     reject {|line| line.empty? || line[0] == '#'}.
